@@ -1,39 +1,26 @@
 # -*- coding: utf-8 -*-
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║          BOT AFILIADOS PRO  –  v9.1  🚀  [CORRIGIDO]          ║
+║          BOT AFILIADOS PRO  –  v9.1  🚀                        ║
+║  ✅ Plano único com acesso completo a todos os recursos         ║
+║  ✅ Onboarding guiado passo a passo                             ║
+║  ✅ Preview antes de postar                                     ║
+║  ✅ Histórico de postagens com repost 1 clique                 ║
+║  ✅ Templates de copy personalizados                            ║
+║  ✅ Blacklist de produtos/lojas                                 ║
+║  ✅ Filtro por categoria no auto-poster                         ║
+║  ✅ Relatório semanal automático                                ║
+║  ✅ Retry automático com backoff                                ║
+║  ✅ Fila de postagem assíncrona                                 ║
+║  ✅ Comando /status rápido                                      ║
+║  ✅ Notificação de vencimento 3 dias antes                      ║
+║  ✅ Confirmação antes de deletar                                ║
+║  ✅ Botão repostar no histórico                                 ║
+║  ✅ Link afiliado por usuário (comissão garantida)              ║
+║  ✅ Sistema de pagamento robusto via bot admin                  ║
+║  ✅ WhatsApp multi-usuário com bridge pessoal                   ║
+║  ✅ Suporte a {preco_original_riscado} em templates             ║
 ╚══════════════════════════════════════════════════════════════════╝
-
-BOT TELEGRAM PARA MONETIZAÇÃO DE AFILIADOS
-
-Características principais:
-  ✅ Plano único com acesso completo a todos os recursos
-  ✅ Onboarding guiado passo a passo
-  ✅ Preview antes de postar
-  ✅ Histórico de postagens com repost 1 clique
-  ✅ Templates de copy personalizados
-  ✅ Blacklist de produtos/lojas
-  ✅ Filtro por categoria no auto-poster
-  ✅ Relatório semanal automático
-  ✅ Retry automático com backoff
-  ✅ Fila de postagem assíncrona
-  ✅ Comando /status rápido
-  ✅ Notificação de vencimento 3 dias antes
-  ✅ Confirmação antes de deletar
-  ✅ Botão repostar no histórico
-  ✅ Link afiliado por usuário (comissão garantida)
-  ✅ Sistema de pagamento robusto via MercadoPago
-  ✅ WhatsApp multi-usuário com bridge pessoal
-  ✅ Suporte a {preco_original_riscado} em templates
-
-ESTRUTURA DO CÓDIGO:
-  [Constantes] → [Dataclasses] → [APIs] → [Database] → [Handlers] → [Main]
-
-CORREÇÕES APLICADAS (v9.1.1):
-  ✓ Todas as exceções genéricas convertidas para Exception
-  ✓ Melhor tratamento de erros
-  ✓ Validação de sintaxe completada
-  ✓ Código preparado para refatoração
 """
 
 import os, sys, logging, requests, random, re, hashlib
@@ -732,9 +719,7 @@ class Database:
     # ── helpers ───────────────────────────────────────────────────
     def _parse_json_list(self, val) -> List:
         try:    return json.loads(val or "[]")
-        except Exception:
-
-            return []
+        except: return []
 
     @staticmethod
     def _parse_date(val) -> str:
@@ -769,16 +754,12 @@ class Database:
                     "%a %d %b %Y %H:%M:%S %Z", "%d %b %Y %H:%M:%S %Z",
                     "%d %b %Y", "%b %d %Y"):
             try:    return datetime.strptime(s, fmt).strftime("%Y-%m-%d")
-            except Exception:
-
-                continue
+            except: continue
         # Último recurso: dateutil
         try:
             from dateutil import parser as du
             return du.parse(s).strftime("%Y-%m-%d")
-        except Exception:
-
-            pass
+        except: pass
         logger.warning(f"[DB] _parse_date: formato desconhecido '{s[:40]}'")
         return ""
 
@@ -1143,9 +1124,7 @@ class Database:
     def get_nomes_grupos_wa(self, uid: int) -> Dict[str, str]:
         row = self._exec("SELECT grupos_wa_nomes FROM assinantes WHERE id=%s", (uid,), fetch="one")
         try:    return json.loads((row or {}).get("grupos_wa_nomes") or "{}") 
-        except Exception:
-
-            return {}
+        except: return {}
 
     def set_wa_bridge(self, uid: int, bridge_url: str):
         self._exec("UPDATE assinantes SET wa_bridge_url=%s WHERE id=%s", (bridge_url, uid))
@@ -1157,9 +1136,7 @@ class Database:
             raw = json.loads((row or {}).get("nichos_tg") or "{}")
             return {k: v if isinstance(v, list) else ([v] if (isinstance(v,str) and v and v!="todos") else [])
                     for k,v in raw.items()}
-        except Exception:
-
-            return {}
+        except: return {}
 
     def set_nichos_tg(self, uid: int, canal: str, nichos: List[str]) -> None:
         dados = self.get_nichos_tg(uid)
@@ -1185,9 +1162,7 @@ class Database:
             raw = json.loads((row or {}).get("nichos_wa") or "{}")
             return {k: v if isinstance(v, list) else ([v] if (isinstance(v,str) and v and v!="todos") else [])
                     for k,v in raw.items()}
-        except Exception:
-
-            return {}
+        except: return {}
 
     def set_nichos_wa(self, uid: int, grupo: str, nichos: List[str]) -> None:
         dados = self.get_nichos_wa(uid)
@@ -1210,9 +1185,7 @@ class Database:
     def get_templates_tg(self, uid: int) -> Dict[str, int]:
         row = self._exec("SELECT templates_tg FROM assinantes WHERE id=%s", (uid,), fetch="one")
         try:    return json.loads((row or {}).get("templates_tg") or "{}")
-        except Exception:
-
-            return {}
+        except: return {}
 
     def set_template_canal_tg(self, uid: int, canal: str, idx: int):
         t = self.get_templates_tg(uid)
@@ -1223,9 +1196,7 @@ class Database:
     def get_templates_wa(self, uid: int) -> Dict[str, int]:
         row = self._exec("SELECT templates_wa FROM assinantes WHERE id=%s", (uid,), fetch="one")
         try:    return json.loads((row or {}).get("templates_wa") or "{}")
-        except Exception:
-
-            return {}
+        except: return {}
 
     def set_template_grupo_wa(self, uid: int, grupo: str, idx: int):
         t = self.get_templates_wa(uid)
@@ -1270,9 +1241,7 @@ class Database:
         try:
             diff = (datetime.now() - datetime.fromisoformat(ultimo)).total_seconds()
             return diff >= (cfg.AUTO_POSTER_INTERVALO - 5) * 60
-        except Exception:
-
-            return True
+        except: return True
 
     # ── blacklist ─────────────────────────────────────────────
     def add_blacklist_loja(self, uid: int, loja: str):
@@ -1345,17 +1314,13 @@ class Database:
 
     def remover_bot_chat(self, chat_id: str):
         try: self._exec("DELETE FROM bot_chats WHERE chat_id=%s", (str(chat_id),))
-        except Exception:
-
-            pass
+        except: pass
 
     def listar_bot_chats(self) -> List[Dict]:
         try:
             rows = self._exec("SELECT * FROM bot_chats ORDER BY titulo", fetch="all") or []
             return [dict(r) for r in rows]
-        except Exception:
-
-            return []
+        except: return []
 
     # ── testes ────────────────────────────────────────────────
     def usou_teste(self, uid: int) -> bool:
@@ -1386,9 +1351,7 @@ class Database:
                     url_hash, video, datetime.now().isoformat())
                 return row["id"] if row else 0
         try:    return self._run(_do())
-        except Exception:
-
-            return 0
+        except: return 0
 
     def get_link(self, link_id: int, uid: int) -> Optional[Dict]:
         row = self._exec("SELECT * FROM links WHERE id=%s AND user_id=%s",
@@ -1408,9 +1371,7 @@ class Database:
                     _to_pg("DELETE FROM links WHERE id=%s AND user_id=%s"), link_id, uid)
                 return r.split()[-1] != "0"
         try:    return self._run(_do())
-        except Exception:
-
-            return False
+        except: return False
 
     # ── agendamentos ──────────────────────────────────────────
     def agendar(self, uid: int, link_id: int, url: str, url_hash: str,
@@ -1423,9 +1384,7 @@ class Database:
                 ON CONFLICT(user_id,url_hash,horario) DO NOTHING
             """, (uid, link_id, url, url_hash, titulo, canal, horario, destinos,
                   datetime.now().isoformat()))
-        except Exception:
-
-            pass
+        except: pass
 
     def pendentes(self, horario: str) -> List[Dict]:
         """
@@ -1465,9 +1424,7 @@ class Database:
                     _to_pg("DELETE FROM agendamentos WHERE id=%s AND user_id=%s"), aid, uid)
                 return r.split()[-1] != "0"
         try:    return self._run(_do())
-        except Exception:
-
-            return False
+        except: return False
 
     # ── historico ─────────────────────────────────────────────
     def log_postagem(self, uid: int, url_hash: str, canal: str,
@@ -1527,9 +1484,7 @@ class Database:
                 VALUES (%s,%s,%s,%s,%s,%s)
                 ON CONFLICT(user_id,item_hash) DO NOTHING
             """, (uid, item_hash, titulo, preco, desconto, datetime.now().isoformat()))
-        except Exception:
-
-            pass
+        except: pass
 
     def limpar_auto_postagens_antigas(self, uid: int, dias: int = 30):
         limite = (datetime.now() - timedelta(days=dias)).isoformat()
@@ -1616,9 +1571,7 @@ class Database:
                 ON CONFLICT(order_id) DO NOTHING
             """, (uid, order_id, status, valor, email, metodo, plano,
                   datetime.now().isoformat()))
-        except Exception:
-
-            pass
+        except: pass
 
     def pgto_processado(self, order_id: str) -> bool:
         row = self._exec("SELECT processado FROM pagamentos WHERE order_id=%s",
@@ -1636,9 +1589,7 @@ class Database:
                 VALUES(%s,%s,%s,'pendente')
                 ON CONFLICT(referred_id) DO NOTHING
             """, (ref_id, new_id, datetime.now().isoformat()))
-        except Exception:
-
-            pass
+        except: pass
 
     def processar_referral(self, new_id: int) -> Optional[int]:
         row = self._exec(
@@ -1685,16 +1636,12 @@ class Database:
                 "SELECT copy FROM copies_custom WHERE user_id=%s AND url_hash=%s",
                 (uid, url_hash), fetch="one")
             return (row or {}).get("copy")
-        except Exception:
-
-            return None
+        except: return None
 
     def limpar_copy_custom(self, uid: int, url_hash: str):
         try: self._exec(
             "DELETE FROM copies_custom WHERE user_id=%s AND url_hash=%s", (uid, url_hash))
-        except Exception:
-
-            pass
+        except: pass
 
     # ── notificações ──────────────────────────────────────────
     def notif(self, tipo: str, uid: int, msg: str):
@@ -1702,9 +1649,7 @@ class Database:
             self._exec(
                 "INSERT INTO notificacoes(tipo,user_id,mensagem,criado_em) VALUES(%s,%s,%s,%s)",
                 (tipo, uid, msg, datetime.now().isoformat()))
-        except Exception:
-
-            pass
+        except: pass
 
     def notifs_pendentes(self) -> List[Dict]:
         rows = self._exec(
@@ -2211,8 +2156,7 @@ class ExtratorMercadoLivre(ExtratorBase):
             hit = cache.get(ck)
             if hit:
                 return hit
-        except Exception:
-
+        except:
             pass
 
         url = link.url_original
@@ -2231,8 +2175,7 @@ class ExtratorMercadoLivre(ExtratorBase):
         if produto:
             try:
                 cache.set(ck, produto, ttl=3600)
-            except Exception:
-
+            except:
                 pass
             return produto
 
@@ -2379,16 +2322,14 @@ class ExtratorMercadoLivre(ExtratorBase):
                 if rating_elem:
                     try:
                         avaliacao = float(rating_elem.get('content', 0))
-                    except Exception:
-
+                    except:
                         pass
                 if avaliacao == 0:
                     rating_span = soup.find('span', class_='ui-pdp-review__rating')
                     if rating_span:
                         try:
                             avaliacao = float(rating_span.get_text(strip=True))
-                        except Exception:
-
+                        except:
                             pass
                 
                 # Vendidos
@@ -2716,8 +2657,7 @@ class ExtratorMagalu(ExtratorBase):
                     imagem = data.get('image', imagem)
                     if data.get('offers', {}).get('price'):
                         preco = float(data['offers']['price'])
-            except Exception:
-
+            except:
                 pass
 
         if not titulo:
@@ -2735,8 +2675,7 @@ class ExtratorMagalu(ExtratorBase):
             if m:
                 try:
                     preco = float(m.group(1).replace('.', '').replace(',', '.'))
-                except Exception:
-
+                except:
                     pass
 
         if preco <= 0 or not titulo:
@@ -4694,11 +4633,9 @@ async def tela_canais_tg(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                         v = str(item[1])
                         if k and k != 'None':
                             chats_db[k] = v
-            except Exception:
-
+            except:
                 continue
-    except Exception:
-
+    except:
         pass
     
     # Buscar informações de canais não encontrados
@@ -4710,7 +4647,7 @@ async def tela_canais_tg(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 titulo = str(chat_info.title or chat_info.username or c)
                 db.registrar_bot_chat(c, titulo, chat_info.type)
                 chats_db[c] = titulo
-            except Exception:
+            except:
                 chats_db[c] = str(c)
 
     texto = "📢 <b>Canais e Grupos Telegram</b>\n\n"
